@@ -2,6 +2,9 @@ import { LanguageCode } from "@/domain/language";
 import { TranslationRequest, TranslationResponse } from "@/domain/translation";
 import { TranslationProvider } from "@/providers/translation-provider";
 import { GoogleProvider } from "@/providers/google";
+import { DeepLProvider } from "@/providers/deepl";
+import { MicrosoftProvider } from "@/providers/microsoft";
+import { OpenAIProvider } from "@/providers/openai";
 
 /**
  * TranslationService - orchestrates providers and manages state.
@@ -12,6 +15,9 @@ class TranslationService {
 
   constructor() {
     this.registerProvider(new GoogleProvider());
+    this.registerProvider(new DeepLProvider());
+    this.registerProvider(new MicrosoftProvider());
+    this.registerProvider(new OpenAIProvider());
   }
 
   registerProvider(provider: TranslationProvider): void {
