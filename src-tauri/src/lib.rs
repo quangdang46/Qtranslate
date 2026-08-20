@@ -1,5 +1,6 @@
 mod commands;
 
+use commands::selection::OperationGuard;
 use tauri::{Emitter, Manager};
 use tauri_plugin_global_shortcut::{Code, GlobalShortcutExt, Modifiers, Shortcut};
 
@@ -7,6 +8,7 @@ use tauri_plugin_global_shortcut::{Code, GlobalShortcutExt, Modifiers, Shortcut}
 pub fn run() {
     tauri::Builder::default()
         .plugin(tauri_plugin_global_shortcut::Builder::new().build())
+        .manage(OperationGuard::new())
         .setup(|app| {
             #[cfg(debug_assertions)]
             {
@@ -27,6 +29,10 @@ pub fn run() {
         })
         .invoke_handler(tauri::generate_handler![
             commands::translate::translate_text,
+            commands::selection::get_selected_text,
+            commands::clipboard::backup_clipboard,
+            commands::clipboard::restore_clipboard,
+            commands::input::paste_text,
         ])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");
