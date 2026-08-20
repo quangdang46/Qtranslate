@@ -38,6 +38,8 @@ pub fn run() {
             commands::input::paste_text,
             commands::window::show_popup,
             commands::window::hide_popup,
+            commands::permissions::check_accessibility_permission,
+            commands::permissions::show_accessibility_guide,
         ])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");
