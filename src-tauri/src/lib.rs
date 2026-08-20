@@ -16,6 +16,9 @@ pub fn run() {
                 window.open_devtools();
             }
 
+            // Create popup window at startup (hidden)
+            commands::window::create_popup_window(app)?;
+
             // Register Ctrl+Q global hotkey
             let shortcut = Shortcut::new(Some(Modifiers::CONTROL), Code::KeyQ);
             let app_handle = app.handle().clone();
@@ -33,6 +36,8 @@ pub fn run() {
             commands::clipboard::backup_clipboard,
             commands::clipboard::restore_clipboard,
             commands::input::paste_text,
+            commands::window::show_popup,
+            commands::window::hide_popup,
         ])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");
