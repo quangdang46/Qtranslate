@@ -50,6 +50,27 @@
 
 ---
 
+## Replace Tests (M3a)
+
+### Windows
+- [ ] Chrome: select "Hello" → Ctrl+Alt+W → replaced with translation
+- [ ] VS Code: select text → Ctrl+Alt+W → replaced
+- [ ] Notepad: select text → Ctrl+Alt+W → replaced
+- [ ] Word: select text → Ctrl+Alt+W → replaced
+- [ ] Multiline: select multi-line → Ctrl+Alt+W → replaced correctly
+- [ ] Long text: select paragraph → Ctrl+Alt+W → replaced (clipboard delay OK)
+- [ ] Unicode: select Vietnamese → Ctrl+Alt+W → replaced with English
+- [ ] Fail case: disconnect internet → Ctrl+Alt+W → original text preserved
+- [ ] Clipboard restore: copy something → Ctrl+Alt+W → paste original elsewhere → OK
+- [ ] Read-only field: PDF viewer → Ctrl+Alt+W → graceful fail, no crash
+
+### macOS
+- [ ] Chrome: select text → Ctrl+Alt+W → replaced
+- [ ] VS Code: select text → Ctrl+Alt+W → replaced
+- [ ] Safari: select text → Ctrl+Alt+W → replaced
+
+---
+
 ## Expected Behavior
 - Popup appears near cursor position
 - Loading state shows during translation
