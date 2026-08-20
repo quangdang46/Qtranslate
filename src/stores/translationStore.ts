@@ -112,5 +112,18 @@ if (typeof window !== "undefined" && window.__TAURI__) {
         console.error("Failed to get selected text:", err);
       }
     });
+
+    listen("replace-translate", async () => {
+      try {
+        const state = useTranslationStore.getState();
+        const result = await invoke<string>("replace_with_translation", {
+          sourceLang: state.sourceLang,
+          targetLang: state.targetLang,
+        });
+        console.log("Replace completed:", result);
+      } catch (err) {
+        console.error("Replace failed:", err);
+      }
+    });
   });
 }
