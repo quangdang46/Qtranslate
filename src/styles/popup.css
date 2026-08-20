@@ -12,60 +12,111 @@
 }
 
 .popup {
-  background: #1a1a2e;
-  border: 1px solid #333;
-  border-radius: 8px;
-  min-width: 300px;
+  background: linear-gradient(145deg, #1a1a2e 0%, #16213e 100%);
+  border: 1px solid rgba(233, 69, 96, 0.3);
+  border-radius: 12px;
+  min-width: 320px;
   max-width: 500px;
-  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.5);
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4), 0 0 0 1px rgba(233, 69, 96, 0.1);
+  animation: popupFadeIn 0.15s ease-out;
+}
+
+@keyframes popupFadeIn {
+  from {
+    opacity: 0;
+    transform: scale(0.95);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
 }
 
 .popup-header {
   padding: 12px 16px;
-  border-bottom: 1px solid #333;
-  font-size: 14px;
-  color: #aaa;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+  font-size: 12px;
+  color: #888;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
 }
 
 .popup-body {
-  padding: 16px;
+  padding: 20px 16px;
   min-height: 60px;
 }
 
 .popup-loading {
   color: #e94560;
   font-style: italic;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.popup-loading::before {
+  content: "";
+  width: 16px;
+  height: 16px;
+  border: 2px solid #e94560;
+  border-top-color: transparent;
+  border-radius: 50%;
+  animation: spin 0.8s linear infinite;
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
 }
 
 .popup-error {
   color: #ff6b6b;
+  font-size: 14px;
 }
 
 .popup-result {
   color: #eee;
   font-size: 16px;
-  line-height: 1.5;
+  line-height: 1.6;
   white-space: pre-wrap;
   word-break: break-word;
 }
 
 .popup-footer {
   padding: 12px 16px;
-  border-top: 1px solid #333;
+  border-top: 1px solid rgba(255, 255, 255, 0.1);
   display: flex;
   justify-content: flex-end;
+  gap: 8px;
+}
+
+.popup-btn {
+  padding: 6px 16px;
+  border-radius: 6px;
+  border: none;
+  cursor: pointer;
+  font-size: 13px;
+  font-weight: 500;
+  transition: all 0.15s ease;
 }
 
 .popup-copy {
   background: #e94560;
   color: white;
-  border: none;
-  padding: 6px 16px;
-  border-radius: 4px;
-  cursor: pointer;
-  font-size: 14px;
 }
 
 .popup-copy:hover {
   background: #d63851;
+  transform: translateY(-1px);
+}
+
+.popup-close {
+  background: rgba(255, 255, 255, 0.1);
+  color: #aaa;
+}
+
+.popup-close:hover {
+  background: rgba(255, 255, 255, 0.15);
+  color: #eee;
 }

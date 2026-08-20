@@ -41,7 +41,10 @@ export function QuickTranslatePopup() {
           {translatedText && <div className="popup-result">{translatedText}</div>}
         </div>
         <div className="popup-footer">
-          <button className="popup-copy" onClick={copyResult}>
+          <button className="popup-btn popup-close" onClick={hidePopup}>
+            Close
+          </button>
+          <button className="popup-btn popup-copy" onClick={copyResult}>
             Copy
           </button>
         </div>
