@@ -28,6 +28,14 @@ pub async fn translate_text(
         .await
         .map_err(|e| format!("Network error: {}", e))?;
 
+    if response.status().as_u16() == 429 {
+        return Err("Rate limited by Google Translate. Try again later.".into());
+    }
+
+    if !response.status().is_success() {
+        return Err(format!("HTTP error: {}", response.status()));
+    }
+
     let body = response
         .json::<serde_json::Value>()
         .await
