@@ -26,13 +26,16 @@ pub fn create_popup_window(app: &tauri::App) -> Result<(), Box<dyn std::error::E
 fn get_cursor_position() -> Result<(i32, i32), String> {
     let enigo = Enigo::new(&Settings::default()).map_err(|e| format!("Enigo error: {}", e))?;
     let (x, y) = enigo.location().map_err(|e| format!("Cursor location error: {}", e))?;
+    eprintln!("Cursor position: ({}, {})", x, y);
     Ok((x as i32, y as i32))
 }
 
 /// Show the popup window near the cursor position.
 #[tauri::command]
 pub async fn show_popup(app: tauri::AppHandle) -> Result<(), String> {
+    eprintln!("show_popup called");
     let (cursor_x, cursor_y) = get_cursor_position()?;
+    eprintln!("Positioning popup at ({}, {})", cursor_x, cursor_y);
 
     if let Some(window) = app.get_webview_window("popup") {
         // Offset popup slightly below and to the right of cursor

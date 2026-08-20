@@ -23,7 +23,9 @@ pub fn run() {
             let shortcut = Shortcut::new(Some(Modifiers::CONTROL), Code::KeyQ);
             let app_handle = app.handle().clone();
             app.global_shortcut().on_shortcut(shortcut, move |_app, _shortcut, event| {
+                eprintln!("Ctrl+Q hotkey triggered, state: {:?}", event.state);
                 if event.state == tauri_plugin_global_shortcut::ShortcutState::Pressed {
+                    eprintln!("Emitting quick-translate event");
                     let _ = app_handle.emit("quick-translate", ());
                 }
             })?;
@@ -35,7 +37,9 @@ pub fn run() {
             );
             let app_handle = app.handle().clone();
             app.global_shortcut().on_shortcut(replace_shortcut, move |_app, _shortcut, event| {
+                eprintln!("Alt+W hotkey triggered, state: {:?}", event.state);
                 if event.state == tauri_plugin_global_shortcut::ShortcutState::Pressed {
+                    eprintln!("Emitting replace-translate event");
                     let _ = app_handle.emit("replace-translate", ());
                 }
             })?;
