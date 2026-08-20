@@ -104,12 +104,34 @@ if (typeof window !== "undefined" && window.__TAURI__) {
   import("@tauri-apps/api/event").then(({ listen }) => {
     listen("quick-translate", async () => {
       try {
+        // Show popup immediately with loading state
+        useTranslationStore.setState({
+          isPopupVisible: true,
+          isLoading: true,
+          error: null,
+          translatedText: "",
+        });
+        // Show popup window at cursor position
+        await invoke("show_popup");
+
+        // Capture selected text
         const selectedText = await invoke<string>("get_selected_text");
         if (selectedText) {
-          useTranslationStore.getState().showPopup(selectedText);
+          useTranslationStore.setState({ inputText: selectedText });
+          // Now translate
+          useTranslationStore.getState().translate(selectedText);
+        } else {
+          useTranslationStore.setState({
+            error: "No text selected",
+            isLoading: false,
+          });
         }
       } catch (err) {
         console.error("Failed to get selected text:", err);
+        useTranslationStore.setState({
+          error: "Failed to capture text",
+          isLoading: false,
+        });
       }
     });
 

@@ -28,9 +28,9 @@ pub fn run() {
                 }
             })?;
 
-            // Register Ctrl+Alt+W global hotkey for replace
+            // Register Alt+W global hotkey for replace
             let replace_shortcut = Shortcut::new(
-                Some(Modifiers::CONTROL | Modifiers::ALT),
+                Some(Modifiers::ALT),
                 Code::KeyW,
             );
             let app_handle = app.handle().clone();
@@ -40,13 +40,39 @@ pub fn run() {
                 }
             })?;
 
-            // Setup system tray
+            // Setup system tray with context menu
             #[cfg(desktop)]
             {
+                use tauri::menu::{MenuBuilder, MenuItemBuilder, PredefinedMenuItem};
                 use tauri::tray::{MouseButton, MouseButtonState, TrayIconBuilder, TrayIconEvent};
+
+                let menu = MenuBuilder::new(app)
+                    .item(&MenuItemBuilder::new("Open QTranslate").id("open").build(app)?)
+                    .separator()
+                    .item(&MenuItemBuilder::new("Quick Translate (Ctrl+Q)").id("quick_translate").build(app)?)
+                    .item(&MenuItemBuilder::new("Replace (Alt+W)").id("replace").build(app)?)
+                    .separator()
+                    .item(&MenuItemBuilder::new("Exit").id("quit").build(app)?)
+                    .build()?;
+
                 let _tray = TrayIconBuilder::new()
                     .icon(app.default_window_icon().unwrap().clone())
                     .tooltip("QTranslate")
+                    .menu(&menu)
+                    .on_menu_event(move |app, event| {
+                        match event.id.as_ref() {
+                            "open" => {
+                                if let Some(window) = app.get_webview_window("main") {
+                                    let _ = window.show();
+                                    let _ = window.set_focus();
+                                }
+                            }
+                            "quit" => {
+                                app.exit(0);
+                            }
+                            _ => {}
+                        }
+                    })
                     .on_tray_icon_event(|tray_icon, event| {
                         if let TrayIconEvent::Click {
                             button: MouseButton::Left,
