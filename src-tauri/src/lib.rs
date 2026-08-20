@@ -49,6 +49,8 @@ pub fn run() {
             commands::clipboard::restore_clipboard,
             commands::input::paste_text,
             commands::input::replace_with_translation,
+            commands::settings::load_settings,
+            commands::settings::save_settings,
             commands::window::show_popup,
             commands::window::hide_popup,
             commands::permissions::check_accessibility_permission,
