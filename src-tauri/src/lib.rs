@@ -28,6 +28,18 @@ pub fn run() {
                 }
             })?;
 
+            // Register Ctrl+Alt+W global hotkey for replace
+            let replace_shortcut = Shortcut::new(
+                Some(Modifiers::CONTROL | Modifiers::ALT),
+                Code::KeyW,
+            );
+            let app_handle = app.handle().clone();
+            app.global_shortcut().on_shortcut(replace_shortcut, move |_app, _shortcut, event| {
+                if event.state == tauri_plugin_global_shortcut::ShortcutState::Pressed {
+                    let _ = app_handle.emit("replace-translate", ());
+                }
+            })?;
+
             Ok(())
         })
         .invoke_handler(tauri::generate_handler![
