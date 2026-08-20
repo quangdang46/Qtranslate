@@ -1,0 +1,19 @@
+{
+  "productName": "QTranslate",
+  "version": "0.1.0",
+  "identifier": "com.qtranslate.app",
+  "build": {
+    "frontendDist": "../dist",
+    "devUrl": "http://localhost:1420"
+  },
+  "app": {
+    "withGlobalTauri": true,
+    "windows": [
+      {
+        "title": "QTranslate",
+        "width": 800,
+        "height": 600
+      }
+    ]
+  }
+}
