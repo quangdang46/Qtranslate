@@ -1,10 +1,19 @@
-# Manual Testing Checklist — M2a.8
+# Manual Testing Checklist
 
 ## Prerequisites
-1. Build the app: `cargo build --manifest-path src-tauri/Cargo.toml`
-2. Run the app: `cargo run --manifest-path src-tauri/Cargo.toml`
 
-## Test Matrix
+### Windows
+1. Build: `cargo build --manifest-path src-tauri/Cargo.toml`
+2. Run: `cargo run --manifest-path src-tauri/Cargo.toml`
+
+### macOS
+1. Build: `cargo build --manifest-path src-tauri/Cargo.toml`
+2. Run: `cargo run --manifest-path src-tauri/Cargo.toml`
+3. Grant Accessibility permission when prompted
+
+---
+
+## Windows Tests (M2a)
 
 ### Basic functionality
 - [ ] Chrome: select text → Ctrl+Q → popup shows translation
@@ -25,6 +34,22 @@
 - [ ] Copy something to clipboard → Ctrl+Q → paste original elsewhere → original still there
 - [ ] Select text → Ctrl+Q → clipboard restored after capture
 
+---
+
+## macOS Tests (M2b)
+
+### Accessibility permission
+- [ ] First run shows permission dialog
+- [ ] Granting permission allows hotkey to work
+- [ ] Denying permission shows error message
+
+### Basic functionality
+- [ ] Chrome: select text → Ctrl+Q → popup shows translation
+- [ ] VS Code: select text → Ctrl+Q → popup shows translation
+- [ ] Safari: select text → Ctrl+Q → popup shows translation
+
+---
+
 ## Expected Behavior
 - Popup appears near cursor position
 - Loading state shows during translation
@@ -36,4 +61,4 @@
 ## Notes
 - First run may require allowing the app through Windows Firewall
 - Ctrl+Q may conflict with other apps (e.g., VS Code uses Ctrl+Q for quick open)
-- If hotkey doesn't work, try running as administrator (temporary workaround)
+- macOS requires Accessibility permission for key simulation
