@@ -32,18 +32,30 @@ export function QuickTranslatePopup() {
   return (
     <div className="popup-overlay" onClick={hidePopup}>
       <div className="popup" onClick={(e) => e.stopPropagation()}>
-        <div className="popup-header">
-          {getLanguageName(sourceLang)} → {getLanguageName(targetLang)}
+        {/* Title bar with close button */}
+        <div className="popup-titlebar">
+          <span className="popup-title">
+            {getLanguageName(sourceLang)} to {getLanguageName(targetLang)} (Google)
+          </span>
+          <button className="popup-close-x" onClick={hidePopup}>×</button>
         </div>
-        <div className="popup-body">
+
+        {/* Source text */}
+        <div className="popup-section">
+          <div className="popup-label">Source</div>
+          <div className="popup-text popup-source">{inputText || "No text selected"}</div>
+        </div>
+
+        {/* Translation result */}
+        <div className="popup-section">
+          <div className="popup-label">Translation</div>
           {isLoading && <div className="popup-loading">Translating...</div>}
           {error && <div className="popup-error">{error}</div>}
-          {translatedText && <div className="popup-result">{translatedText}</div>}
+          {translatedText && <div className="popup-text popup-result">{translatedText}</div>}
         </div>
+
+        {/* Footer with copy button */}
         <div className="popup-footer">
-          <button className="popup-btn popup-close" onClick={hidePopup}>
-            Close
-          </button>
           <button className="popup-btn popup-copy" onClick={copyResult}>
             Copy
           </button>
