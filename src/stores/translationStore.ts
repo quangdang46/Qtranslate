@@ -1,0 +1,116 @@
+import { create } from "zustand";
+import { LanguageCode } from "@/domain/language";
+import { TranslationResponse } from "@/domain/translation";
+import { translationService } from "@/services/translation";
+import { invoke } from "@tauri-apps/api/core";
+
+interface TranslationState {
+  // State
+  inputText: string;
+  translatedText: string;
+  isLoading: boolean;
+  error: string | null;
+  sourceLang: LanguageCode;
+  targetLang: LanguageCode;
+  isPopupVisible: boolean;
+
+  // Actions
+  setInputText: (text: string) => void;
+  setSourceLang: (lang: LanguageCode) => void;
+  setTargetLang: (lang: LanguageCode) => void;
+  translate: (text?: string) => Promise<void>;
+  showPopup: (selectedText: string) => void;
+  hidePopup: () => void;
+  copyResult: () => Promise<void>;
+}
+
+export const useTranslationStore = create<TranslationState>((set, get) => ({
+  // Initial state
+  inputText: "",
+  translatedText: "",
+  isLoading: false,
+  error: null,
+  sourceLang: "auto",
+  targetLang: "vi",
+  isPopupVisible: false,
+
+  // Actions
+  setInputText: (text) => set({ inputText: text }),
+
+  setSourceLang: (lang) => set({ sourceLang: lang }),
+
+  setTargetLang: (lang) => set({ targetLang: lang }),
+
+  translate: async (textOverride?: string) => {
+    const state = get();
+    const text = textOverride || state.inputText;
+
+    if (!text.trim()) {
+      set({ translatedText: "", error: null });
+      return;
+    }
+
+    set({ isLoading: true, error: null });
+
+    try {
+      const response = await translationService.quickTranslate(
+        text,
+        state.targetLang,
+        state.sourceLang,
+      );
+      set({
+        translatedText: response.translatedText,
+        isLoading: false,
+        inputText: text,
+      });
+    } catch (err) {
+      set({
+        error: err instanceof Error ? err.message : "Translation failed",
+        isLoading: false,
+      });
+    }
+  },
+
+  showPopup: (selectedText: string) => {
+    set({
+      isPopupVisible: true,
+      inputText: selectedText,
+      isLoading: true,
+      error: null,
+      translatedText: "",
+    });
+    // Auto-translate
+    get().translate(selectedText);
+  },
+
+  hidePopup: () => {
+    set({
+      isPopupVisible: false,
+      isLoading: false,
+      error: null,
+    });
+  },
+
+  copyResult: async () => {
+    const { translatedText } = get();
+    if (translatedText) {
+      await navigator.clipboard.writeText(translatedText);
+    }
+  },
+}));
+
+// Listen for Tauri events (only in Tauri environment)
+if (typeof window !== "undefined" && window.__TAURI__) {
+  import("@tauri-apps/api/event").then(({ listen }) => {
+    listen("quick-translate", async () => {
+      try {
+        const selectedText = await invoke<string>("get_selected_text");
+        if (selectedText) {
+          useTranslationStore.getState().showPopup(selectedText);
+        }
+      } catch (err) {
+        console.error("Failed to get selected text:", err);
+      }
+    });
+  });
+}
