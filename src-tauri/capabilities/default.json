@@ -1,7 +1,7 @@
 {
   "identifier": "default",
   "description": "Default permissions for QTranslate",
-  "windows": ["main"],
+  "windows": ["main", "popup"],
   "permissions": [
     "core:default",
     "global-shortcut:allow-register",

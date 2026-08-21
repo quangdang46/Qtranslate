@@ -30,9 +30,9 @@ pub fn run() {
                 }
             })?;
 
-            // Register Alt+W global hotkey for replace
+            // Register Ctrl+Alt+W global hotkey for replace
             let replace_shortcut = Shortcut::new(
-                Some(Modifiers::ALT),
+                Some(Modifiers::CONTROL | Modifiers::ALT),
                 Code::KeyW,
             );
             let app_handle = app.handle().clone();
@@ -54,7 +54,7 @@ pub fn run() {
                     .item(&MenuItemBuilder::new("Open QTranslate").id("open").build(app)?)
                     .separator()
                     .item(&MenuItemBuilder::new("Quick Translate (Ctrl+Q)").id("quick_translate").build(app)?)
-                    .item(&MenuItemBuilder::new("Replace (Alt+W)").id("replace").build(app)?)
+                    .item(&MenuItemBuilder::new("Replace (Ctrl+Alt+W)").id("replace").build(app)?)
                     .separator()
                     .item(&MenuItemBuilder::new("Exit").id("quit").build(app)?)
                     .build()?;
@@ -105,7 +105,8 @@ pub fn run() {
             commands::input::replace_with_translation,
             commands::settings::load_settings,
             commands::settings::save_settings,
-            commands::window::show_popup,
+            commands::window::show_popup_loading,
+            commands::window::show_popup_result,
             commands::window::hide_popup,
             commands::permissions::check_accessibility_permission,
             commands::permissions::show_accessibility_guide,

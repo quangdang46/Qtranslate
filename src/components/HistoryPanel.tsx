@@ -37,6 +37,7 @@ export function HistoryPanel() {
           height: "48px",
           cursor: "pointer",
           fontSize: "20px",
+          boxShadow: "0 2px 8px rgba(0,0,0,0.25)",
         }}
       >
         📋
@@ -52,18 +53,21 @@ export function HistoryPanel() {
         right: "20px",
         width: "350px",
         maxHeight: "400px",
-        background: "#1a1a2e",
-        border: "1px solid #333",
+        background: "#ffffff",
+        border: "1px solid #d0d0d0",
         borderRadius: "8px",
         overflow: "hidden",
         display: "flex",
         flexDirection: "column",
+        boxShadow: "0 4px 16px rgba(0,0,0,0.15)",
+        color: "#222",
       }}
     >
       <div
         style={{
           padding: "12px 16px",
-          borderBottom: "1px solid #333",
+          borderBottom: "1px solid #eee",
+          background: "#f5f5f5",
           display: "flex",
           justifyContent: "space-between",
           alignItems: "center",
@@ -107,7 +111,7 @@ export function HistoryPanel() {
               key={entry.id}
               style={{
                 padding: "12px 16px",
-                borderBottom: "1px solid #222",
+                borderBottom: "1px solid #eee",
                 cursor: "pointer",
               }}
               onClick={() => {
@@ -121,7 +125,7 @@ export function HistoryPanel() {
               <div
                 style={{
                   fontSize: "14px",
-                  color: "#eee",
+                  color: "#333",
                   marginTop: "4px",
                   overflow: "hidden",
                   textOverflow: "ellipsis",

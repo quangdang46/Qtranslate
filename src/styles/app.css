@@ -7,26 +7,181 @@
 body {
   font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen,
     Ubuntu, Cantarell, "Open Sans", "Helvetica Neue", sans-serif;
-  background-color: #1a1a2e;
-  color: #eee;
+  background-color: #eef0f2;
+  color: #222;
 }
 
 .app {
   display: flex;
   flex-direction: column;
-  align-items: center;
-  justify-content: center;
   min-height: 100vh;
-  padding: 2rem;
 }
 
-h1 {
-  font-size: 2rem;
-  margin-bottom: 1rem;
+/* Translator form */
+.translator {
+  display: flex;
+  flex-direction: column;
+  max-width: 640px;
+  margin: 24px auto;
+  width: 100%;
+  background: #ffffff;
+  border: 1px solid #d0d0d0;
+  border-radius: 6px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+  overflow: hidden;
+}
+
+.tf-header {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  padding: 8px 12px;
+  background: #f5f5f5;
+  border-bottom: 1px solid #ddd;
+}
+
+.tf-nav-btn {
+  background: none;
+  border: none;
+  font-size: 13px;
+  color: #999;
+  cursor: not-allowed;
+  padding: 2px 6px;
+}
+
+.tf-provider-name {
+  margin-left: 8px;
+  font-size: 13px;
+  font-weight: 600;
   color: #e94560;
 }
 
-p {
-  font-size: 1.1rem;
-  color: #aaa;
+.tf-source {
+  width: 100%;
+  min-height: 110px;
+  padding: 12px;
+  border: none;
+  border-bottom: 1px solid #eee;
+  resize: vertical;
+  font-size: 14px;
+  font-family: inherit;
+  color: #222;
+}
+
+.tf-source:focus {
+  outline: none;
+  background: #fafbff;
+}
+
+.tf-controls {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 12px;
+  border-bottom: 1px solid #eee;
+  flex-wrap: wrap;
+}
+
+.tf-icon-btn {
+  background: #fff;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  font-size: 14px;
+  padding: 5px 8px;
+  cursor: pointer;
+  line-height: 1;
+}
+
+.tf-icon-btn:hover:not(:disabled) {
+  background: #f0f0f0;
+}
+
+.tf-icon-btn:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+.tf-lang-select {
+  flex: 1;
+  min-width: 120px;
+  padding: 6px 8px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  font-size: 13px;
+  background: #fff;
+  color: #222;
+}
+
+.tf-translate-btn {
+  background: #e94560;
+  color: #fff;
+  border: none;
+  border-radius: 4px;
+  padding: 7px 18px;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.tf-translate-btn:hover:not(:disabled) {
+  background: #d63851;
+}
+
+.tf-translate-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.tf-result {
+  min-height: 110px;
+  padding: 12px;
+  font-size: 14px;
+  line-height: 1.6;
+}
+
+.tf-result-text {
+  color: #222;
+  font-weight: 500;
+}
+
+.tf-error {
+  color: #c0392b;
+  font-size: 13px;
+}
+
+.tf-placeholder {
+  color: #999;
+  font-size: 13px;
+}
+
+.tf-placeholder p {
+  margin-bottom: 4px;
+}
+
+.tf-loading {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  color: #888;
+  font-style: italic;
+}
+
+.tf-spinner {
+  width: 14px;
+  height: 14px;
+  border: 2px solid #ddd;
+  border-top-color: #e94560;
+  border-radius: 50%;
+  display: inline-block;
+  animation: tf-spin 0.7s linear infinite;
+}
+
+@keyframes tf-spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.translator .provider-toolbar {
+  justify-content: center;
 }
