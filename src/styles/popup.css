@@ -1,6 +1,6 @@
-/* The popup component fills its own small, transparent, borderless OS
-   window (see src-tauri/src/commands/window.rs) - it is not a modal
-   embedded in a page, so it paints its own card chrome directly. */
+/* The popup component fills its own transparent, borderless OS window
+   (see src-tauri/src/commands/window.rs). It paints its own card chrome
+   directly — white card with title bar, body, and provider toolbar. */
 .popup {
   width: 100%;
   height: 100%;
@@ -101,60 +101,43 @@
   cursor: pointer;
 }
 
+.popup-result:hover {
+  background: #f0f8ff;
+  border-radius: 4px;
+}
+
 .popup-error {
   color: #c0392b;
   font-size: 13px;
+}
+
+.popup-loading {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  color: #888;
+  font-size: 13px;
+  font-style: italic;
+}
+
+.popup-spinner {
+  width: 14px;
+  height: 14px;
+  border: 2px solid #ddd;
+  border-top-color: #e94560;
+  border-radius: 50%;
+  display: inline-block;
+  animation: popup-spin 0.7s linear infinite;
+}
+
+@keyframes popup-spin {
+  to {
+    transform: rotate(360deg);
+  }
 }
 
 /* Round the bottom corners of the shared provider toolbar to match the card. */
 .popup .provider-toolbar {
   flex-shrink: 0;
   border-radius: 0 0 5px 5px;
-}
-
-/* Compact loading pill - shown alone (fills the tiny loading-sized OS
-   window, see LOADING_WIDTH/HEIGHT in commands/window.rs) while translating,
-   before the full card above ever mounts. */
-.popup-loading-pill {
-  width: 100%;
-  height: 100%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  background: rgba(30, 30, 38, 0.92);
-  border-radius: 16px;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
-}
-
-.popup-loading-track {
-  position: relative;
-  width: 60px;
-  height: 4px;
-  border-radius: 2px;
-  background: rgba(255, 255, 255, 0.18);
-  overflow: hidden;
-  display: block;
-}
-
-.popup-loading-bar {
-  position: absolute;
-  top: 0;
-  left: 0;
-  height: 100%;
-  width: 40%;
-  border-radius: 2px;
-  background: #4d9fff;
-  animation: popup-loading-slide 1s ease-in-out infinite;
-}
-
-@keyframes popup-loading-slide {
-  0% {
-    left: -40%;
-  }
-  50% {
-    left: 60%;
-  }
-  100% {
-    left: -40%;
-  }
 }

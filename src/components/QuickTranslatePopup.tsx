@@ -37,20 +37,6 @@ export function QuickTranslatePopup() {
 
   if (!isPopupVisible) return null;
 
-  // While translating, show only a tiny loading pill at the cursor - the
-  // full card (title bar, icons, provider toolbar) only mounts once
-  // translation has actually finished, matching the classic QTranslate
-  // behavior of not popping up the result window until it's ready.
-  if (isLoading) {
-    return (
-      <div className="popup-loading-pill">
-        <span className="popup-loading-track">
-          <span className="popup-loading-bar" />
-        </span>
-      </div>
-    );
-  }
-
   const activeProviderName = translationService.getProvider(activeProviderKey)?.name ?? "";
 
   const handleProviderSelect = (key: string) => {
@@ -97,11 +83,20 @@ export function QuickTranslatePopup() {
 
       {/* Body */}
       <div className="popup-body">
-        {inputText && <div className="popup-source">{inputText}</div>}
+        {isLoading && (
+          <div className="popup-loading">
+            <span className="popup-spinner" />
+            Translating…
+          </div>
+        )}
 
-        {error && <div className="popup-error">{error}</div>}
+        {!isLoading && error && <div className="popup-error">{error}</div>}
 
-        {translatedText && (
+        {!isLoading && !error && inputText && (
+          <div className="popup-source">{inputText}</div>
+        )}
+
+        {!isLoading && translatedText && (
           <div className="popup-result" title="Click to copy" onClick={copyResult}>
             {translatedText}
           </div>

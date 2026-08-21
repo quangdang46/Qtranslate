@@ -137,8 +137,7 @@ if (typeof window !== "undefined" && window.__TAURI__) {
             quickTranslate: { sourceLanguage: string; targetLanguage: string };
           }>("load_settings");
 
-          // Show the small loading pill at the cursor immediately - the
-          // full card only appears once translation has actually finished.
+          // Set state to loading, show the popup card
           useTranslationStore.setState({
             isPopupVisible: true,
             isLoading: true,
@@ -147,7 +146,7 @@ if (typeof window !== "undefined" && window.__TAURI__) {
             sourceLang: freshSettings.quickTranslate.sourceLanguage as any,
             targetLang: freshSettings.quickTranslate.targetLanguage as any,
           });
-          await invoke("show_popup_loading");
+          await invoke("show_popup");
 
           // Capture selected text
           const selectedText = await invoke<string>("get_selected_text");
@@ -166,10 +165,6 @@ if (typeof window !== "undefined" && window.__TAURI__) {
             error: "Failed to capture text",
             isLoading: false,
           });
-        } finally {
-          // Translation is done (success or error) - grow into the full
-          // result card and reveal it.
-          await invoke("show_popup_result");
         }
       });
 
