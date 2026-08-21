@@ -1,6 +1,9 @@
-import { useEffect } from "react";
+import { useState, useEffect } from "react";
 import { useTranslationStore } from "@/stores/translationStore";
 import { getLanguageName } from "@/domain/language";
+import { translationService } from "@/services/translation";
+import { speak } from "@/services/tts";
+import { ProviderToolbar } from "@/components/ProviderToolbar";
 import "../styles/popup.css";
 
 export function QuickTranslatePopup() {
@@ -14,7 +17,12 @@ export function QuickTranslatePopup() {
     isPopupVisible,
     hidePopup,
     copyResult,
+    translate,
   } = useTranslationStore();
+
+  const [activeProviderKey, setActiveProviderKey] = useState(
+    translationService.getActiveProvider().key,
+  );
 
   // Handle Escape key
   useEffect(() => {
@@ -29,38 +37,79 @@ export function QuickTranslatePopup() {
 
   if (!isPopupVisible) return null;
 
+  // While translating, show only a tiny loading pill at the cursor - the
+  // full card (title bar, icons, provider toolbar) only mounts once
+  // translation has actually finished, matching the classic QTranslate
+  // behavior of not popping up the result window until it's ready.
+  if (isLoading) {
+    return (
+      <div className="popup-loading-pill">
+        <span className="popup-loading-track">
+          <span className="popup-loading-bar" />
+        </span>
+      </div>
+    );
+  }
+
+  const activeProviderName = translationService.getProvider(activeProviderKey)?.name ?? "";
+
+  const handleProviderSelect = (key: string) => {
+    if (key === activeProviderKey) return;
+    translationService.setActiveProvider(key);
+    setActiveProviderKey(key);
+    if (inputText) {
+      translate(inputText);
+    }
+  };
+
   return (
-    <div className="popup-overlay" onClick={hidePopup}>
-      <div className="popup" onClick={(e) => e.stopPropagation()}>
-        {/* Title bar with close button */}
-        <div className="popup-titlebar">
-          <span className="popup-title">
-            {getLanguageName(sourceLang)} to {getLanguageName(targetLang)} (Google)
-          </span>
-          <button className="popup-close-x" onClick={hidePopup}>×</button>
-        </div>
-
-        {/* Source text */}
-        <div className="popup-section">
-          <div className="popup-label">Source</div>
-          <div className="popup-text popup-source">{inputText || "No text selected"}</div>
-        </div>
-
-        {/* Translation result */}
-        <div className="popup-section">
-          <div className="popup-label">Translation</div>
-          {isLoading && <div className="popup-loading">Translating...</div>}
-          {error && <div className="popup-error">{error}</div>}
-          {translatedText && <div className="popup-text popup-result">{translatedText}</div>}
-        </div>
-
-        {/* Footer with copy button */}
-        <div className="popup-footer">
-          <button className="popup-btn popup-copy" onClick={copyResult}>
-            Copy
+    <div className="popup">
+      {/* Title bar */}
+      <div className="popup-titlebar">
+        <span className="popup-title">
+          {getLanguageName(sourceLang)} to {getLanguageName(targetLang)} ({activeProviderName})
+        </span>
+        <div className="popup-titlebar-actions">
+          <button className="popup-icon-btn" title="Favorite" onClick={() => {}}>
+            ★
+          </button>
+          <button
+            className="popup-icon-btn"
+            title="Listen to source text"
+            onClick={() => speak(inputText, sourceLang === "auto" ? "en" : sourceLang)}
+            disabled={!inputText}
+          >
+            🎤
+          </button>
+          <button
+            className="popup-icon-btn"
+            title="Listen to translation"
+            onClick={() => speak(translatedText, targetLang)}
+            disabled={!translatedText}
+          >
+            🔊
+          </button>
+          <button className="popup-close-x" title="Close" onClick={hidePopup}>
+            ×
           </button>
         </div>
       </div>
+
+      {/* Body */}
+      <div className="popup-body">
+        {inputText && <div className="popup-source">{inputText}</div>}
+
+        {error && <div className="popup-error">{error}</div>}
+
+        {translatedText && (
+          <div className="popup-result" title="Click to copy" onClick={copyResult}>
+            {translatedText}
+          </div>
+        )}
+      </div>
+
+      {/* Provider toolbar */}
+      <ProviderToolbar activeKey={activeProviderKey} onSelect={handleProviderSelect} />
     </div>
   );
 }

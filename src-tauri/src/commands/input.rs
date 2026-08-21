@@ -6,8 +6,24 @@ use tauri::State;
 
 use super::selection::OperationGuard;
 
+/// Release modifier keys that aren't part of the copy/paste combo but may
+/// still be physically held down (e.g. Alt from a Ctrl+Alt+W hotkey press).
+/// Without this, a held Alt turns our simulated Ctrl+C into Ctrl+Alt+C,
+/// which most apps don't recognize as "Copy" — the clipboard never changes
+/// and selection capture silently fails.
+fn release_stray_modifiers() -> Result<(), String> {
+    let mut enigo = Enigo::new(&Settings::default()).map_err(|e| format!("Enigo error: {}", e))?;
+    let _ = enigo.key(Key::Alt, Direction::Release);
+    let _ = enigo.key(Key::Shift, Direction::Release);
+    let _ = enigo.key(Key::Meta, Direction::Release);
+    // Give the OS a moment to register the key-up before we simulate Ctrl+C.
+    thread::sleep(Duration::from_millis(30));
+    Ok(())
+}
+
 /// Simulate Ctrl+C to copy selected text.
 fn simulate_copy() -> Result<(), String> {
+    release_stray_modifiers()?;
     let mut enigo = Enigo::new(&Settings::default()).map_err(|e| format!("Enigo error: {}", e))?;
     enigo
         .key(Key::Control, Direction::Press)

@@ -46,12 +46,27 @@ pub async fn get_selected_text(
     result
 }
 
+/// Release modifier keys that aren't part of the copy combo but may still be
+/// physically held down (e.g. Alt/Shift from whatever hotkey triggered this).
+/// Without this, a held Alt turns our simulated Ctrl+C into Ctrl+Alt+C, which
+/// most apps don't recognize as "Copy" — the clipboard never changes and
+/// selection capture silently fails.
+fn release_stray_modifiers() -> Result<(), String> {
+    let mut enigo = Enigo::new(&Settings::default()).map_err(|e| format!("Enigo error: {}", e))?;
+    let _ = enigo.key(Key::Alt, Direction::Release);
+    let _ = enigo.key(Key::Shift, Direction::Release);
+    let _ = enigo.key(Key::Meta, Direction::Release);
+    thread::sleep(Duration::from_millis(30));
+    Ok(())
+}
+
 fn capture_selected_text() -> Result<String, String> {
     // 1. Backup current clipboard
     let mut clipboard = Clipboard::new().map_err(|e| format!("Clipboard error: {}", e))?;
     let old_content = clipboard.get_text().ok().map(|s| s.to_string());
 
     // 2. Simulate Ctrl+C (enigo 0.2+ API)
+    release_stray_modifiers()?;
     let mut enigo = Enigo::new(&Settings::default()).map_err(|e| format!("Enigo error: {}", e))?;
     enigo
         .key(Key::Control, Direction::Press)
