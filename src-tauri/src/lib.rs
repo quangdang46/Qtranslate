@@ -26,7 +26,8 @@ pub fn run() {
             commands::window::create_options_window(app)?;
 
             // Register Ctrl+Q global hotkey
-            let shortcut = Shortcut::new(Some(Modifiers::CONTROL), Code::KeyQ);
+            // TEMP: Ctrl+Q occupied by ShareX on this machine, using Ctrl+Shift+Q
+            let shortcut = Shortcut::new(Some(Modifiers::CONTROL | Modifiers::SHIFT), Code::KeyQ);
             let app_handle = app.handle().clone();
             app.global_shortcut().on_shortcut(shortcut, move |_app, _shortcut, event| {
                 eprintln!("Ctrl+Q hotkey triggered, state: {:?}", event.state);
@@ -50,10 +51,10 @@ pub fn run() {
                 }
             })?;
 
-            // Register Ctrl+Shift+Q global hotkey for dictionary
+            // Register Ctrl+Shift+D global hotkey for dictionary
             let dict_shortcut = Shortcut::new(
                 Some(Modifiers::CONTROL | Modifiers::SHIFT),
-                Code::KeyQ,
+                Code::KeyD,
             );
             let app_handle = app.handle().clone();
             app.global_shortcut().on_shortcut(dict_shortcut, move |_app, _shortcut, event| {
@@ -101,9 +102,9 @@ pub fn run() {
                 let menu = MenuBuilder::new(app)
                     .item(&MenuItemBuilder::new("Open QTranslate").id("open").build(app)?)
                     .separator()
-                    .item(&MenuItemBuilder::new("Quick Translate (Ctrl+Q)").id("quick_translate").build(app)?)
+                    .item(&MenuItemBuilder::new("Quick Translate (Ctrl+Shift+Q) [TEMP]").id("quick_translate").build(app)?)
                     .item(&MenuItemBuilder::new("Replace (Ctrl+Alt+W)").id("replace").build(app)?)
-                    .item(&MenuItemBuilder::new("Dictionary (Ctrl+Shift+Q)").id("dictionary").build(app)?)
+                    .item(&MenuItemBuilder::new("Dictionary (Ctrl+Shift+D)").id("dictionary").build(app)?)
                     .separator()
                     .item(&MenuItemBuilder::new("Options").id("options").build(app)?)
                     .separator()

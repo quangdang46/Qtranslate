@@ -3,6 +3,7 @@ use std::fs;
 use std::path::PathBuf;
 
 #[derive(Debug, Serialize, Deserialize, Clone)]
+#[serde(rename_all = "camelCase")]
 pub struct QuickTranslateConfig {
     pub source_language: String,
     pub target_language: String,
@@ -10,6 +11,7 @@ pub struct QuickTranslateConfig {
 }
 
 #[derive(Debug, Serialize, Deserialize, Clone)]
+#[serde(rename_all = "camelCase")]
 pub struct ReplaceConfig {
     pub source_language: String,
     pub target_language: String,
@@ -17,6 +19,7 @@ pub struct ReplaceConfig {
 }
 
 #[derive(Debug, Serialize, Deserialize, Clone)]
+#[serde(rename_all = "camelCase")]
 pub struct AppSettings {
     pub quick_translate: QuickTranslateConfig,
     pub replace: ReplaceConfig,
