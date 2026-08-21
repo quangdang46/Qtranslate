@@ -16,6 +16,8 @@ export default defineConfig(async () => ({
       input: {
         main: path.resolve(__dirname, "index.html"),
         popup: path.resolve(__dirname, "popup.html"),
+        dictionary: path.resolve(__dirname, "dictionary.html"),
+        options: path.resolve(__dirname, "options.html"),
       },
     },
   },

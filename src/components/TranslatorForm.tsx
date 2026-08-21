@@ -1,5 +1,7 @@
 import { useState } from "react";
 import { translationService } from "@/services/translation";
+import { createHistoryEntry } from "@/domain/history";
+import { historyService } from "@/services/history";
 import { getCommonLanguages, getLanguageName, Language, LanguageCode } from "@/domain/language";
 import { useSettingsStore } from "@/stores/settingsStore";
 import { ProviderToolbar } from "@/components/ProviderToolbar";
@@ -13,7 +15,7 @@ import { ProviderToolbar } from "@/components/ProviderToolbar";
  * windows previously caused both windows to race on the same Rust commands.
  */
 export function TranslatorForm() {
-  const { settings, setActiveProvider: persistActiveProvider } = useSettingsStore();
+  const { settings, setActiveProvider: persistActiveProvider, updateQuickTranslate, saveSettings } = useSettingsStore();
 
   const [sourceText, setSourceText] = useState("");
   const [translatedText, setTranslatedText] = useState("");
@@ -42,6 +44,16 @@ export function TranslatorForm() {
         targetLanguage: targetLang,
       });
       setTranslatedText(response.translatedText);
+      // Record in history
+      historyService.addEntry(
+        createHistoryEntry(
+          sourceText,
+          sourceLang,
+          targetLang,
+          response.translatedText,
+          activeProviderKey,
+        ),
+      );
     } catch (err) {
       setError(err instanceof Error ? err.message : "Translation failed");
       setTranslatedText("");
@@ -70,9 +82,22 @@ export function TranslatorForm() {
     translationService.setActiveProvider(key);
     setActiveProviderKey(key);
     persistActiveProvider(key);
+    saveSettings();
     if (translatedText || sourceText) {
       runTranslate();
     }
+  };
+
+  const handleSourceLangChange = (lang: LanguageCode) => {
+    setSourceLang(lang);
+    updateQuickTranslate({ sourceLanguage: lang });
+    saveSettings();
+  };
+
+  const handleTargetLangChange = (lang: LanguageCode) => {
+    setTargetLang(lang);
+    updateQuickTranslate({ targetLanguage: lang });
+    saveSettings();
   };
 
   return (
@@ -101,7 +126,7 @@ export function TranslatorForm() {
         <select
           className="tf-lang-select"
           value={sourceLang}
-          onChange={(e) => setSourceLang(e.target.value)}
+          onChange={(e) => handleSourceLangChange(e.target.value as LanguageCode)}
         >
           {getCommonLanguages().map((code) => (
             <option key={code} value={code}>
@@ -120,7 +145,7 @@ export function TranslatorForm() {
         <select
           className="tf-lang-select"
           value={targetLang}
-          onChange={(e) => setTargetLang(e.target.value)}
+          onChange={(e) => handleTargetLangChange(e.target.value as LanguageCode)}
         >
           {getCommonLanguages()
             .filter((code) => code !== Language.AUTO)

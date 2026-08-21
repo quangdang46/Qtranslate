@@ -1,10 +1,20 @@
 use arboard::Clipboard;
 use enigo::{Direction, Enigo, Key, Keyboard, Settings};
+use serde::Serialize;
 use std::thread;
 use std::time::Duration;
 use tauri::State;
 
 use super::selection::OperationGuard;
+
+/// Result of a successful replace operation - both texts are returned (not
+/// just the translation) so the caller can record a history entry without
+/// a second round-trip.
+#[derive(Debug, Serialize)]
+pub struct ReplaceResult {
+    pub source_text: String,
+    pub translated_text: String,
+}
 
 /// Release modifier keys that aren't part of the copy/paste combo but may
 /// still be physically held down (e.g. Alt from a Ctrl+Alt+W hotkey press).
@@ -82,7 +92,7 @@ pub async fn replace_with_translation(
     source_lang: String,
     target_lang: String,
     state: State<'_, OperationGuard>,
-) -> Result<String, String> {
+) -> Result<ReplaceResult, String> {
     // Concurrency guard
     if state
         .is_running
@@ -97,7 +107,7 @@ pub async fn replace_with_translation(
     result
 }
 
-async fn do_replace(source_lang: &str, target_lang: &str) -> Result<String, String> {
+async fn do_replace(source_lang: &str, target_lang: &str) -> Result<ReplaceResult, String> {
     // 1. Backup clipboard
     let mut clipboard = Clipboard::new().map_err(|e| format!("Clipboard error: {}", e))?;
     let old_content = clipboard.get_text().ok().map(|s| s.to_string());
@@ -149,7 +159,10 @@ async fn do_replace(source_lang: &str, target_lang: &str) -> Result<String, Stri
         let _ = clipboard.set_text(old.as_str());
     }
 
-    Ok(translated)
+    Ok(ReplaceResult {
+        source_text: selected,
+        translated_text: translated,
+    })
 }
 
 async fn translate_via_google(text: &str, source_lang: &str, target_lang: &str) -> Result<String, String> {

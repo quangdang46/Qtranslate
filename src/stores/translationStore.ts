@@ -1,7 +1,9 @@
 import { create } from "zustand";
 import { LanguageCode } from "@/domain/language";
 import { TranslationResponse } from "@/domain/translation";
+import { createHistoryEntry } from "@/domain/history";
 import { translationService } from "@/services/translation";
+import { historyService } from "@/services/history";
 import { invoke } from "@tauri-apps/api/core";
 
 interface TranslationState {
@@ -63,6 +65,16 @@ export const useTranslationStore = create<TranslationState>((set, get) => ({
         isLoading: false,
         inputText: text,
       });
+      // Record in history
+      historyService.addEntry(
+        createHistoryEntry(
+          text,
+          state.sourceLang,
+          state.targetLang,
+          response.translatedText,
+          translationService.getActiveProvider().key,
+        ),
+      );
     } catch (err) {
       set({
         error: err instanceof Error ? err.message : "Translation failed",
@@ -120,6 +132,11 @@ if (typeof window !== "undefined" && window.__TAURI__) {
 
       listen("quick-translate", async () => {
         try {
+          // Load fresh settings to get configured source/target languages
+          const freshSettings = await invoke<{
+            quickTranslate: { sourceLanguage: string; targetLanguage: string };
+          }>("load_settings");
+
           // Show the small loading pill at the cursor immediately - the
           // full card only appears once translation has actually finished.
           useTranslationStore.setState({
@@ -127,6 +144,8 @@ if (typeof window !== "undefined" && window.__TAURI__) {
             isLoading: true,
             error: null,
             translatedText: "",
+            sourceLang: freshSettings.quickTranslate.sourceLanguage as any,
+            targetLang: freshSettings.quickTranslate.targetLanguage as any,
           });
           await invoke("show_popup_loading");
 
@@ -156,16 +175,34 @@ if (typeof window !== "undefined" && window.__TAURI__) {
 
       listen("replace-translate", async () => {
         try {
-          const state = useTranslationStore.getState();
-          const result = await invoke<string>("replace_with_translation", {
-            sourceLang: state.sourceLang,
-            targetLang: state.targetLang,
+          // Load fresh settings to get configured source/target languages
+          const freshSettings = await invoke<{
+            replace: { sourceLanguage: string; targetLanguage: string };
+          }>("load_settings");
+
+          const result = await invoke<{
+            source_text: string;
+            translated_text: string;
+          }>("replace_with_translation", {
+            sourceLang: freshSettings.replace.sourceLanguage,
+            targetLang: freshSettings.replace.targetLanguage,
           });
           console.log("Replace completed:", result);
+          // Record in history
+          historyService.addEntry(
+            createHistoryEntry(
+              result.source_text,
+              freshSettings.replace.sourceLanguage as any,
+              freshSettings.replace.targetLanguage as any,
+              result.translated_text,
+              translationService.getActiveProvider().key,
+            ),
+          );
         } catch (err) {
           console.error("Replace failed:", err);
         }
       });
+
     },
   );
 }

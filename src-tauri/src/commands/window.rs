@@ -124,3 +124,57 @@ pub async fn hide_popup(app: tauri::AppHandle) -> Result<(), String> {
     }
     Ok(())
 }
+
+/// Create the dictionary window at startup (hidden by default).
+/// Decorated, resizable, normal-sized — like a regular app window.
+pub fn create_dictionary_window(app: &tauri::App) -> Result<(), Box<dyn std::error::Error>> {
+    let _window = WebviewWindowBuilder::new(
+        app,
+        "dictionary",
+        WebviewUrl::App("/dictionary.html".into()),
+    )
+    .title("Dictionary — QTranslate")
+    .inner_size(480.0, 520.0)
+    .resizable(true)
+    .decorations(true)
+    .visible(false)
+    .build()?;
+
+    Ok(())
+}
+
+/// Show the dictionary window (create-on-demand fallback).
+pub fn show_dictionary_window(app: &tauri::AppHandle) -> Result<(), String> {
+    if let Some(window) = app.get_webview_window("dictionary") {
+        window.show().map_err(|e| e.to_string())?;
+        window.set_focus().map_err(|e| e.to_string())?;
+    }
+    Ok(())
+}
+
+/// Create the options window at startup (hidden by default).
+/// Decorated, resizable, normal-sized.
+pub fn create_options_window(app: &tauri::App) -> Result<(), Box<dyn std::error::Error>> {
+    let _window = WebviewWindowBuilder::new(
+        app,
+        "options",
+        WebviewUrl::App("/options.html".into()),
+    )
+    .title("Options — QTranslate")
+    .inner_size(520.0, 480.0)
+    .resizable(true)
+    .decorations(true)
+    .visible(false)
+    .build()?;
+
+    Ok(())
+}
+
+/// Show the options window.
+pub fn show_options_window(app: &tauri::AppHandle) -> Result<(), String> {
+    if let Some(window) = app.get_webview_window("options") {
+        window.show().map_err(|e| e.to_string())?;
+        window.set_focus().map_err(|e| e.to_string())?;
+    }
+    Ok(())
+}

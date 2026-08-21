@@ -19,6 +19,12 @@ pub fn run() {
             // Create popup window at startup (hidden)
             commands::window::create_popup_window(app)?;
 
+            // Create dictionary window at startup (hidden)
+            commands::window::create_dictionary_window(app)?;
+
+            // Create options window at startup (hidden)
+            commands::window::create_options_window(app)?;
+
             // Register Ctrl+Q global hotkey
             let shortcut = Shortcut::new(Some(Modifiers::CONTROL), Code::KeyQ);
             let app_handle = app.handle().clone();
@@ -37,17 +43,59 @@ pub fn run() {
             );
             let app_handle = app.handle().clone();
             app.global_shortcut().on_shortcut(replace_shortcut, move |_app, _shortcut, event| {
-                eprintln!("Alt+W hotkey triggered, state: {:?}", event.state);
+                eprintln!("Ctrl+Alt+W hotkey triggered, state: {:?}", event.state);
                 if event.state == tauri_plugin_global_shortcut::ShortcutState::Pressed {
                     eprintln!("Emitting replace-translate event");
                     let _ = app_handle.emit("replace-translate", ());
                 }
             })?;
 
+            // Register Ctrl+Shift+Q global hotkey for dictionary
+            let dict_shortcut = Shortcut::new(
+                Some(Modifiers::CONTROL | Modifiers::SHIFT),
+                Code::KeyQ,
+            );
+            let app_handle = app.handle().clone();
+            app.global_shortcut().on_shortcut(dict_shortcut, move |_app, _shortcut, event| {
+                eprintln!("Ctrl+Shift+Q hotkey triggered, state: {:?}", event.state);
+                if event.state == tauri_plugin_global_shortcut::ShortcutState::Pressed {
+                    // Capture selected text and show dictionary with it
+                    let handle = app_handle.clone();
+                    tauri::async_runtime::spawn(async move {
+                        // Release stray modifiers so Ctrl+C works
+                        use enigo::{Direction, Enigo, Key, Keyboard, Settings};
+                        use std::thread;
+                        use std::time::Duration;
+                        if let Ok(mut enigo) = Enigo::new(&Settings::default()) {
+                            let _ = enigo.key(Key::Alt, Direction::Release);
+                            let _ = enigo.key(Key::Shift, Direction::Release);
+                            let _ = enigo.key(Key::Meta, Direction::Release);
+                            thread::sleep(Duration::from_millis(30));
+                            // Simulate Ctrl+C
+                            let _ = enigo.key(Key::Control, Direction::Press);
+                            let _ = enigo.key(Key::Unicode('c'), Direction::Click);
+                            let _ = enigo.key(Key::Control, Direction::Release);
+                        }
+
+                        // Small delay for clipboard to update
+                        thread::sleep(Duration::from_millis(100));
+
+                        // Read clipboard
+                        let selected = if let Ok(mut cb) = arboard::Clipboard::new() {
+                            cb.get_text().ok().map(|s| s.to_string()).unwrap_or_default()
+                        } else {
+                            String::new()
+                        };
+
+                        let _ = handle.emit("show-dictionary", selected);
+                    });
+                }
+            })?;
+
             // Setup system tray with context menu
             #[cfg(desktop)]
             {
-                use tauri::menu::{MenuBuilder, MenuItemBuilder, PredefinedMenuItem};
+                use tauri::menu::{MenuBuilder, MenuItemBuilder};
                 use tauri::tray::{MouseButton, MouseButtonState, TrayIconBuilder, TrayIconEvent};
 
                 let menu = MenuBuilder::new(app)
@@ -55,6 +103,9 @@ pub fn run() {
                     .separator()
                     .item(&MenuItemBuilder::new("Quick Translate (Ctrl+Q)").id("quick_translate").build(app)?)
                     .item(&MenuItemBuilder::new("Replace (Ctrl+Alt+W)").id("replace").build(app)?)
+                    .item(&MenuItemBuilder::new("Dictionary (Ctrl+Shift+Q)").id("dictionary").build(app)?)
+                    .separator()
+                    .item(&MenuItemBuilder::new("Options").id("options").build(app)?)
                     .separator()
                     .item(&MenuItemBuilder::new("Exit").id("quit").build(app)?)
                     .build()?;
@@ -70,6 +121,18 @@ pub fn run() {
                                     let _ = window.show();
                                     let _ = window.set_focus();
                                 }
+                            }
+                            "quick_translate" => {
+                                let _ = app.emit("quick-translate", ());
+                            }
+                            "replace" => {
+                                let _ = app.emit("replace-translate", ());
+                            }
+                            "dictionary" => {
+                                let _ = commands::window::show_dictionary_window(app);
+                            }
+                            "options" => {
+                                let _ = commands::window::show_options_window(app);
                             }
                             "quit" => {
                                 app.exit(0);
@@ -110,6 +173,7 @@ pub fn run() {
             commands::window::hide_popup,
             commands::permissions::check_accessibility_permission,
             commands::permissions::show_accessibility_guide,
+            commands::dictionary::lookup_dictionary,
         ])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");
